@@ -4,6 +4,7 @@ import com.example.laboratorjavafx.domain.Entity;
 import com.example.laboratorjavafx.domain.FriendShip;
 import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.domain.validators.ValidationException;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 
@@ -123,4 +124,5 @@ public interface ServiceInterface<ID> {
      */
     void createFriendRequest(String email1, String email2);
 
+    Color getColor();
 }

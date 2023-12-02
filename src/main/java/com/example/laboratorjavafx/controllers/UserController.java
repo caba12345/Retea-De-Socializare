@@ -1,12 +1,13 @@
 package com.example.laboratorjavafx.controllers;
 
 import com.example.laboratorjavafx.domain.User;
+import com.example.laboratorjavafx.service.Service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import com.example.laboratorjavafx.service.Service;
+import com.example.laboratorjavafx.service.MessageService;
 
 public class UserController {
     @FXML
@@ -18,12 +19,23 @@ public class UserController {
     @FXML
     private TableColumn<User, String> lastNameColumn;
     @FXML
-    private TextField firstNameField, lastNameField;
+    private TableColumn<User, String> emailColumn;
+    @FXML
+    private TextField firstNameField, lastNameField, emailField;
     @FXML
     private Button addButton, updateButton, deleteButton;
 
+    private MessageService messageService;
     private Service service;
     private ObservableList<User> users = FXCollections.observableArrayList();
+
+    public MessageService getMessageService() {
+        return messageService;
+    }
+
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     public void setService(Service service) {
         this.service = service;
@@ -35,6 +47,7 @@ public class UserController {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         usersTable.setItems(users);
     }
 
@@ -50,12 +63,13 @@ public class UserController {
         try {
             String firstName = firstNameField.getText();
             String lastName = lastNameField.getText();
+            String email = emailField.getText();
             // Validate inputs
-            if (firstName.isEmpty() || lastName.isEmpty()) {
-                showAlert("Input Error", "First name and last name cannot be empty.");
+            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()){
+                showAlert("Input Error", "First name, last name and email cannot be empty.");
                 return;
             }
-            User user = service.getUserByNumePrenume(firstName, lastName);
+            User user = new User(firstName, lastName, email);
             service.addUser(user);
             loadUsers();
             clearForm();
@@ -93,7 +107,8 @@ public class UserController {
             if (selectedUser != null) {
                 String newFirstName = firstNameField.getText();
                 String newLastName = lastNameField.getText();
-                service.updateUser(selectedUser.getId(), newFirstName, newLastName);
+                String newemail = emailField.getText();
+                service.updateUser(selectedUser.getId(), newFirstName, newLastName, newemail);
                 loadUsers();
             }
         } catch (Exception e) {

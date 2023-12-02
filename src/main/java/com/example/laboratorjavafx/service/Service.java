@@ -6,7 +6,11 @@ import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.domain.validators.ValidationException;
 import com.example.laboratorjavafx.domain.validators.Validator;
 import com.example.laboratorjavafx.repository.Repository;
+import javafx.scene.paint.Color;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 import static com.example.laboratorjavafx.domain.FriendRequest.*;
@@ -418,7 +422,7 @@ public class Service implements ServiceInterface<UUID> {
     }
 
     @Override
-    public User getUserByEmail(String email) {
+    public static User getUserByEmail(String email) {
         Iterable<User> it = userRepo.findAll();
 
         User[] foundUser = new User[1]; // Folosim un array cu o singură poziție pentru a stoca utilizatorul găsit
@@ -549,10 +553,39 @@ public class Service implements ServiceInterface<UUID> {
         return userRepo.size();
     }
 
-    public void updateUser(UUID id, String newFirstName, String newLastName) {
+    public void updateUser(UUID id, String newFirstName, String newLastName, String newemail) {
         User user = (User) userRepo.findOne(id).get();
         user.setFirstName(newFirstName);
         user.setLastName(newLastName);
+        user.setEmail(newemail);
         userRepo.update(user);
+        updateFriendshipsForUser(user);
+    }
+
+    private void updateFriendshipsForUser(User user) {
+        Iterable<FriendShip> friendships = friendshipRepo.findAll();
+
+        for (FriendShip friendship : friendships) {
+            if (friendship.getUser1().equals(user)) {
+                friendship.setUser1(user);
+                friendshipRepo.update(friendship);
+            }
+            if (friendship.getUser2().equals(user)) {
+                friendship.setUser2(user);
+                friendshipRepo.update(friendship);
+            }
+        }
+    }
+
+    public Color getColor() {
+        try (BufferedReader br = new BufferedReader(new FileReader("D:\\MOP\\LABORATOR8\\src\\main\\java\\com\\example\\laboratorjavafx\\color.txt"))) {
+            String linie = br.readLine();
+            return Color.valueOf(linie);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return Color.WHITE;
     }
 }

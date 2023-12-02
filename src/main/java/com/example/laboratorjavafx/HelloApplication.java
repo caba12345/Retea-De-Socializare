@@ -6,15 +6,17 @@ import com.example.laboratorjavafx.domain.validators.UserValidator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import com.example.laboratorjavafx.repository.FriendshipDbRepository;
+import com.example.laboratorjavafx.repository.database.FriendshipDbRepository;
 import com.example.laboratorjavafx.repository.Repository;
-import com.example.laboratorjavafx.repository.UserDbRepository;
+import com.example.laboratorjavafx.repository.database.UserDbRepository;
 import com.example.laboratorjavafx.service.Service;
 
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws Exception {
+
         FriendshipValidator friendshipValidator = new FriendshipValidator();
         UserValidator userValidator = new UserValidator();
 
@@ -31,6 +33,7 @@ public class HelloApplication extends Application {
         stage.setTitle("User Management");
         stage.setScene(scene);
         stage.show();
+
     }
 
     public static void main(String[] args) {

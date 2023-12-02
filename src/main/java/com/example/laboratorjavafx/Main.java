@@ -3,10 +3,10 @@ package com.example.laboratorjavafx;
 import com.example.laboratorjavafx.domain.RepoStrategy;
 import com.example.laboratorjavafx.domain.validators.FriendshipValidator;
 import com.example.laboratorjavafx.domain.validators.UserValidator;
-import com.example.laboratorjavafx.repository.FriendshipDbRepository;
-import com.example.laboratorjavafx.repository.InMemoryRepository;
+import com.example.laboratorjavafx.repository.database.FriendshipDbRepository;
+import com.example.laboratorjavafx.repository.memory.InMemoryRepository;
 import com.example.laboratorjavafx.repository.Repository;
-import com.example.laboratorjavafx.repository.UserDbRepository;
+import com.example.laboratorjavafx.repository.database.UserDbRepository;
 import com.example.laboratorjavafx.service.Service;
 import com.example.laboratorjavafx.ui.UI;
 

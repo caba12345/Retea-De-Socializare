@@ -1,12 +1,13 @@
-package com.example.laboratorjavafx.repository;
+package com.example.laboratorjavafx.repository.memory;
 
 import com.example.laboratorjavafx.domain.Entity;
+import com.example.laboratorjavafx.repository.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<ID, E>{
+public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<ID, E> {
     protected Map<ID, E> entities;
 
 

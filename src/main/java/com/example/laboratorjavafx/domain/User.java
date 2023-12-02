@@ -6,6 +6,7 @@ public class User extends Entity<UUID>{
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
     private Map<UUID, User> friends;
 
     public User(UUID id, String firstName, String lastName, String email){
@@ -13,6 +14,14 @@ public class User extends Entity<UUID>{
         this.lastName = lastName;
         this.email = email;
         this.friends = new HashMap<>();
+        this.setId(id);
+    }
+    public User(UUID id, String firstName, String lastName, String email, String password){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.friends = new HashMap<>();
+        this.password = password;
         this.setId(id);
     }
     public User(String firstName, String lastName, String email){
@@ -48,6 +57,10 @@ public class User extends Entity<UUID>{
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword(){
+        return password;
     }
 
     @Override

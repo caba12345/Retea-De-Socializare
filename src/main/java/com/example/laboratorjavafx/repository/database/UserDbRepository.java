@@ -1,6 +1,7 @@
-package com.example.laboratorjavafx.repository;
+package com.example.laboratorjavafx.repository.database;
 
 import com.example.laboratorjavafx.domain.User;
+import com.example.laboratorjavafx.repository.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
