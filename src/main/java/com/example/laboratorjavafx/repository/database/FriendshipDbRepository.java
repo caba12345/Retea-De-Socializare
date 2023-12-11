@@ -1,5 +1,6 @@
 package com.example.laboratorjavafx.repository.database;
 
+import com.example.laboratorjavafx.domain.FriendshipStatus;
 import com.example.laboratorjavafx.domain.FriendShip;
 import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.repository.Repository;
@@ -42,7 +43,8 @@ public class FriendshipDbRepository implements Repository<UUID, FriendShip> {
                 User u1 = new User(idu1, FirstNameU1, LastNameU1, emailU1);
                 User u2 = new User(idu2, FirstNameU2, LastNameU2, emailU2);
                 LocalDateTime friendsFrom = friendsFromTimestamp.toLocalDateTime();
-                FriendShip p1 = new FriendShip(id, u1,u2, friendsFrom);
+                FriendshipStatus request = FriendshipStatus.ACCEPTED;
+                FriendShip p1 = new FriendShip(id, u1,u2, friendsFrom, request);
                 return Optional.of(p1);
             }
         }catch(SQLException e){
@@ -69,10 +71,11 @@ public class FriendshipDbRepository implements Repository<UUID, FriendShip> {
                 UUID idu1 = (UUID) r.getObject("idu1");
                 UUID idu2 = (UUID) r.getObject("idu2");
                 Timestamp friendsFromTimestamp = r.getTimestamp("friendsFrom");
+                FriendshipStatus request = FriendshipStatus.ACCEPTED;
                 User u1 = new User(idu1, FirstNameU1, LastNameU1, emailU1);
                 User u2 = new User(idu2, FirstNameU2, LastNameU2, emailU2);
                 LocalDateTime friendsFrom = friendsFromTimestamp.toLocalDateTime();
-                FriendShip p1 = new FriendShip(id, u1,u2, friendsFrom);
+                FriendShip p1 = new FriendShip(id, u1,u2, friendsFrom, request);
                 list.add(p1);
             }
             return list;
@@ -100,7 +103,8 @@ public class FriendshipDbRepository implements Repository<UUID, FriendShip> {
             return affectedRows!=0? Optional.empty():Optional.of(entity);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }    }
+        }
+    }
 
     @Override
     public Optional<FriendShip> delete(UUID uuid) {

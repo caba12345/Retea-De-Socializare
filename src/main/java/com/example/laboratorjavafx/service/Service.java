@@ -1,6 +1,7 @@
 package com.example.laboratorjavafx.service;
 
 import com.example.laboratorjavafx.domain.Entity;
+import com.example.laboratorjavafx.domain.FriendRequest;
 import com.example.laboratorjavafx.domain.FriendShip;
 import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.domain.validators.ValidationException;
@@ -13,26 +14,38 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-import static com.example.laboratorjavafx.domain.FriendRequest.*;
+import static com.example.laboratorjavafx.domain.FriendshipStatus.*;
 
 public class Service implements ServiceInterface<UUID> {
 
     private final Repository userRepo;
     private final Validator userValidator;
     private final Repository friendshipRepo;
+    private final Repository friendRequestRepo;
     private final Validator friendshipValidator;
 
     /**
      * Constructor
-     * @param userRepo - the repository for the users
-     * @param userValidator - the validator for the users
-     * @param friendshipRepo - the repository for the friendships
+     *
+     * @param userRepo            - the repository for the users
+     * @param userValidator       - the validator for the users
+     * @param friendshipRepo      - the repository for the friendships
+     * @param friendRequestRepo
      * @param friendshipValidator - the validator for the friendships
      */
+    public Service(Repository userRepo, Validator userValidator, Repository friendshipRepo, Repository friendRequestRepo, Validator friendshipValidator) {
+        this.userRepo = userRepo;
+        this.userValidator = userValidator;
+        this.friendshipRepo = friendshipRepo;
+        this.friendRequestRepo = friendRequestRepo;
+        this.friendshipValidator = friendshipValidator;
+    }
+
     public Service(Repository userRepo, Validator userValidator, Repository friendshipRepo, Validator friendshipValidator) {
         this.userRepo = userRepo;
         this.userValidator = userValidator;
         this.friendshipRepo = friendshipRepo;
+        this.friendRequestRepo = null;
         this.friendshipValidator = friendshipValidator;
     }
 
@@ -164,7 +177,7 @@ public class Service implements ServiceInterface<UUID> {
             throw new IllegalArgumentException("Friendship already exists!");
         }
 
-        var friendship = new FriendShip(u1, u2);
+        var friendship = new FriendShip(u1, u2, ACCEPTED);
 
         try {
             this.friendshipValidator.validate(friendship);
@@ -245,19 +258,24 @@ public class Service implements ServiceInterface<UUID> {
         return friendshipRepo.findAll();
     }
 
+    @Override
+    public Iterable<FriendRequest> getAllFriendrequests() {
+        return friendRequestRepo.findAll();
+    }
+
     /**
      * Adds some predefined values to the repository
      * We use this method to add some predefined values to the repository
      */
     @Override
     public void add_Predefined_Values() {
-        User u1 = new User("Paul", "Caba", "cabapaul@yahoo.com");
-        User u2 = new User("Mircea", "Maior", "maiormircea@yahoo.com");
-        User u3 = new User("Raul", "Vida", "vidaraul@yahoo.com");
-        User u4 = new User("Andrei", "Balan", "balanandrei@yahoo.com");
-        User u5 = new User("Gheorghe", "Groze", "grozegheorghe@yahoo.com");
-        User u6 = new User("Cristian", "Popescu", "popescucristian@yahoo.com");
-        User u7 = new User("Mirel", "Bala", "balamirel@yahoo.com");
+        User u1 = new User("Paul", "Caba", "cabapaul@yahoo.com", "1234");
+        User u2 = new User("Mircea", "Maior", "maiormircea@yahoo.com", "123");
+        User u3 = new User("Raul", "Vida", "vidaraul@yahoo.com", "12345");
+        User u4 = new User("Andrei", "Balan", "balanandrei@yahoo.com", "123456");
+        User u5 = new User("Gheorghe", "Groze", "grozegheorghe@yahoo.com", "1234567");
+        User u6 = new User("Cristian", "Popescu", "popescucristian@yahoo.com", "12345678");
+        User u7 = new User("Mirel", "Bala", "balamirel@yahoo.com", "123456789");
                 this.addUser(u1);
                 this.addUser(u2);
                 this.addUser(u3);
@@ -420,9 +438,8 @@ public class Service implements ServiceInterface<UUID> {
 
         return l;
     }
-
     @Override
-    public static User getUserByEmail(String email) {
+    public User getUserByEmail(String email) {
         Iterable<User> it = userRepo.findAll();
 
         User[] foundUser = new User[1]; // Folosim un array cu o singură poziție pentru a stoca utilizatorul găsit
@@ -435,6 +452,7 @@ public class Service implements ServiceInterface<UUID> {
 
         return foundUser[0];
     }
+
 
     @Override
     public void acceptFriendship(String email1, String email2) {
@@ -462,22 +480,20 @@ public class Service implements ServiceInterface<UUID> {
             throw new ValidationException("Users must be not null and different!");
         }
 
-        // Încercăm să actualizăm starea cererii de prietenie la "REJECTED"
-        Optional<Entity<UUID>> updatedFriendship = friendshipRepo.update(new FriendShip(u1, u2, REJECTED));
+        FriendRequest f = findFriendRequestBetweenUsers(u1, u2).orElse(null);
+        f.setStatus(REJECTED);
 
-        if (updatedFriendship.isPresent()) {
-            throw new IllegalArgumentException("Friendship does not exist!");
-        }
+        friendRequestRepo.update(f);
+
     }
 
-
     /**
-     * Creates a friend request
+     * Accepts a friend request
      * @param email1 - the email of the first user
      * @param email2 - the email of the second user
      */
     @Override
-    public void createFriendRequest(String email1, String email2) {
+    public void acceptFriendRequest(String email1, String email2) {
         User u1, u2;
 
         if (email1 == null || email2 == null) {
@@ -487,25 +503,77 @@ public class Service implements ServiceInterface<UUID> {
         u1 = getUserByEmail(email1);
         u2 = getUserByEmail(email2);
 
+
+
+        if (u1 == null || u2 == null || u1.equals(u2)) {
+            throw new ValidationException("Users must be not null and different!");
+        }
+
+        FriendRequest f = findFriendRequestBetweenUsers(u1, u2).orElse(null);
+        f.setStatus(ACCEPTED);
+
+        friendRequestRepo.update(f);
+        friendshipRepo.save(new FriendShip(u1, u2, ACCEPTED));
+    }
+
+
+    /**
+     * Returns FriendRequest between two users
+     * @return Optional<FriendRequest> - the friend request between the two users
+     */
+    private Optional<FriendRequest> findFriendRequestBetweenUsers(User u1, User u2) {
+        Iterable<FriendRequest> allRequests = friendRequestRepo.findAll();
+
+        for (FriendRequest request : allRequests) {
+            if ((request.getFromUser().equals(u1) && request.getToUser().equals(u2)) ||
+                    (request.getFromUser().equals(u2) && request.getToUser().equals(u1))) {
+                return Optional.of(request);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+
+
+    /**
+     * Creates a friend request
+     * @param email1 - the email of the first user
+     * @param email2 - the email of the second user
+     */
+    @Override
+    public void createFriendRequest(String email1, String email2) {
+        User u1 = getUserByEmail(email1);
+        User u2 = getUserByEmail(email2);
+
         if (u1 == null || u2 == null || u1.equals(u2)) {
             throw new IllegalArgumentException("Users must not be null and must be different!");
         }
 
-        var u1Friends = u1.getFriends();
-        var u2Friends = u2.getFriends();
-
-        if (u1Friends.contains(u2) || u2Friends.contains(u1)) {
-            throw new IllegalArgumentException("Friendship already exists!");
+        Iterable<FriendRequest> existingRequests = friendRequestRepo.findAll();
+        for (FriendRequest existingRequest : existingRequests) {
+            if (((existingRequest.getFromUser().equals(u1) && existingRequest.getToUser().equals(u2))
+                    || (existingRequest.getFromUser().equals(u2) && existingRequest.getToUser().equals(u1)) && existingRequest.getStatus() == PENDING)) {
+                System.out.print("This friend request already exists!\n");
+                return;
+            }
         }
 
-        FriendShip friendRequest = new FriendShip(u1, u2, PENDING);
+        Iterable<FriendShip> friendships = getAllFriendships();
 
-        Optional<Entity<UUID>> f = friendshipRepo.save(friendRequest);
-
-        if (f.isPresent()) {
-            throw new IllegalArgumentException("Friendship already exists!");
+        for (FriendShip friendship : friendships) {
+            if ((friendship.getUser1().equals(u1) && friendship.getUser2().equals(u2)) ||
+                    (friendship.getUser1().equals(u2) && friendship.getUser2().equals(u1))) {
+                System.out.print("Users are already friends!\n");
+                return;
+            }
         }
+
+        var friendRequest = new FriendRequest(u1, u2, PENDING);
+
+        friendRequestRepo.save(friendRequest);
     }
+
 
     public List<String> PrieteniLuna(String p, String n, Integer month) {
         ArrayList<String> users = new ArrayList<>();

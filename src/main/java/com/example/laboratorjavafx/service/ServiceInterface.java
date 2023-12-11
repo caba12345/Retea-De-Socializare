@@ -1,6 +1,7 @@
 package com.example.laboratorjavafx.service;
 
 import com.example.laboratorjavafx.domain.Entity;
+import com.example.laboratorjavafx.domain.FriendRequest;
 import com.example.laboratorjavafx.domain.FriendShip;
 import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.domain.validators.ValidationException;
@@ -74,6 +75,8 @@ public interface ServiceInterface<ID> {
     Iterable<FriendShip> getAllFriendships();
 
 
+    Iterable<FriendRequest> getAllFriendrequests();
+
     /**
      * Adds predefined users and friendships
      */
@@ -117,6 +120,8 @@ public interface ServiceInterface<ID> {
      * @param email2
      */
     void declineFriendRequest(String email1, String email2);
+
+    void acceptFriendRequest(String email1, String email2);
 
     /**
      * @param email1

@@ -32,7 +32,8 @@ public class UserDbRepository implements Repository<UUID ,User> {
                 String FirstName = r.getString("FirstName");
                 String LastName = r.getString("LastName");
                 String email = r.getString("email");
-                User u1 = new User(id, FirstName, LastName, email);
+                String passwordUser = r.getString("password");
+                User u1 = new User(id, FirstName, LastName, email, passwordUser);
                 return Optional.of(u1);
             }
         }catch(SQLException e){
@@ -53,7 +54,8 @@ public class UserDbRepository implements Repository<UUID ,User> {
                 String FirstName = r.getString("FirstName");
                 String LastName = r.getString("LastName");
                 String email = r.getString("email");
-                User u1 = new User(id, FirstName, LastName, email);
+                String passwordUser = r.getString("password");
+                User u1 = new User(id, FirstName, LastName, email, passwordUser);
                 list.add(u1);
             }
             return list;
@@ -65,12 +67,14 @@ public class UserDbRepository implements Repository<UUID ,User> {
     @Override
     public Optional<User> save(User entity) {
         try(Connection connection = DriverManager.getConnection(url,user,password);
-            PreparedStatement statement  = connection.prepareStatement("INSERT INTO Users(UUID,FirstName,LastName,Email) VALUES (?,?,?,?)");)
+            PreparedStatement statement  = connection.prepareStatement("INSERT INTO Users(UUID,FirstName,LastName,Email,Password) VALUES (?,?,?,?,?)");)
         {
             statement.setObject(1,entity.getId());
             statement.setString(2,entity.getFirstName());
             statement.setString(3,entity.getLastName());
             statement.setString(4,entity.getEmail());
+            statement.setString(5,entity.getPassword());
+
 
             //statement.setInt(3,entity.getYear());
             int affectedRows = statement.executeUpdate();

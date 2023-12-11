@@ -99,7 +99,9 @@ public class UI implements UIInterface<UUID>{
         String lastName = scanner.nextLine();
         System.out.println("Enter the user's email: ");
         String email = scanner.nextLine();
-        User user = new User(firstName, lastName, email);
+        System.out.println("Enter the user's password: ");
+        String password = scanner.nextLine();
+        User user = new User(firstName, lastName, email, password);
         try{
             service.addUser(user);
         }

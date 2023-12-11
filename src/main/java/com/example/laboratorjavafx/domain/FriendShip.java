@@ -9,31 +9,17 @@ public class FriendShip extends Entity<UUID>{
     private User user1;
     private User user2;
     private LocalDateTime friendsFrom;
-    private FriendRequest request;
+    private FriendshipStatus request;
 
-    public FriendShip(UUID id, User user1, User user2, LocalDateTime friendsFrom){
+    public FriendShip(UUID id, User user1, User user2, LocalDateTime friendsFrom, FriendshipStatus request){
         this.id = id;
         this.user1 = user1;
         this.user2 = user2;
         this.friendsFrom = friendsFrom;
-    }
-    public FriendShip(User user1, User user2){
-        this.user1 = user1;
-        this.user2 = user2;
-        this.setId(UUID.randomUUID());
-        friendsFrom = LocalDateTime.now();
-        this.request = FriendRequest.PENDING;
+        this.request = request;
     }
 
-    public FriendShip(User user1, User user2, LocalDateTime friendsFrom){
-        this.user1 = user1;
-        this.user2 = user2;
-        this.setId(UUID.randomUUID());
-        this.friendsFrom = friendsFrom;
-        this.request = FriendRequest.PENDING;
-    }
-
-    public FriendShip(User user1, User user2, FriendRequest request){
+    public FriendShip(User user1, User user2, FriendshipStatus request){
         this.user1 = user1;
         this.user2 = user2;
         this.setId(UUID.randomUUID());
@@ -65,11 +51,11 @@ public class FriendShip extends Entity<UUID>{
         this.friendsFrom = friendsFrom;
     }
 
-    public FriendRequest getRequest() {
+    public FriendshipStatus getRequest() {
         return request;
     }
 
-    public void setRequest(FriendRequest request) {
+    public void setRequest(FriendshipStatus request) {
         this.request = request;
     }
 

@@ -24,12 +24,13 @@ public class User extends Entity<UUID>{
         this.password = password;
         this.setId(id);
     }
-    public User(String firstName, String lastName, String email){
+    public User(String firstName, String lastName, String email, String password){
 
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.friends = new HashMap<>();
+        this.password = password;
 
         //generates a random unique ID
         this.setId(UUID.randomUUID());
