@@ -30,12 +30,12 @@ This is a social networking application developed in Java, JavaFX, and PostgreSQ
 4. **FriendRequest**: Represents a friend request between two users.
 
 ## Repository Structure
-- **com.example.laboratorjavafx.controller: Contains JavaFX controllers for user interface interaction.
-- **com.example.laboratorjavafx.domain: Defines domain entities like User, Message, etc.
-- **com.example.laboratorjavafx.repository: Contains repository interfaces and implementations for data access.
-- **com.example.laboratorjavafx.service: Contains service classes for business logic implementation.
-- **com.example.laboratorjavafx.repository.database: Provides database-specific implementations of repositories.
-- **com.example.laboratorjavafx.Paging: Contains classes related to pagination.
+- **com.example.laboratorjavafx.controller**: Contains JavaFX controllers for user interface interaction.
+- **com.example.laboratorjavafx.domain**: Defines domain entities like User, Message, etc.
+- **com.example.laboratorjavafx.repository**: Contains repository interfaces and implementations for data access.
+- **com.example.laboratorjavafx.service**: Contains service classes for business logic implementation.
+- **com.example.laboratorjavafx.repository.database**: Provides database-specific implementations of repositories.
+- **com.example.laboratorjavafx.Paging**: Contains classes related to pagination.
 - **com.example.laboratorjavafx.ui**: Provides the user interface for interaction with the application.
 
 ## Running the Application
