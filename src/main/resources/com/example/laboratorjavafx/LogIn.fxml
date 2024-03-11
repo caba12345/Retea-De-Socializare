@@ -11,6 +11,16 @@
             <Font name="System Bold" size="15.0" />
          </font>
       </Button>
+      <Hyperlink layoutX="326.0" layoutY="314.0" onAction="#onSignInClick" prefHeight="18.0" prefWidth="42.0" text="Sign up!" underline="true" wrapText="true" AnchorPane.leftAnchor="326.0" AnchorPane.rightAnchor="232.0">
+         <font>
+            <Font size="8.0" />
+         </font>
+      </Hyperlink>
+      <Label layoutX="237.0" layoutY="310.0" prefHeight="27.0" prefWidth="91.0" text="Don't have an account?" AnchorPane.leftAnchor="237.0" AnchorPane.rightAnchor="272.0">
+         <font>
+            <Font size="8.0" />
+         </font>
+      </Label>
       <PasswordField fx:id="password" layoutX="226.0" layoutY="231.0" onKeyTyped="#onPasswordChanged" promptText="Password" />
       <TextField fx:id="email" layoutX="226.0" layoutY="188.0" promptText="Email" />
       <Label layoutX="225.0" layoutY="94.0" text="Sign In" textFill="#750b3f">

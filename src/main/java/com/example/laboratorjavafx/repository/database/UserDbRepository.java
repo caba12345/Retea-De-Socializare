@@ -1,14 +1,22 @@
 package com.example.laboratorjavafx.repository.database;
 
+import com.example.laboratorjavafx.Paging.Page;
+import com.example.laboratorjavafx.Paging.Pageable;
+import com.example.laboratorjavafx.Paging.PagingRepository;
 import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.repository.Repository;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UserDbRepository implements Repository<UUID ,User> {
+
+public class UserDbRepository implements PagingRepository<UUID ,User> {
     private String url;
     private String user;
     private String password;
@@ -18,6 +26,23 @@ public class UserDbRepository implements Repository<UUID ,User> {
         this.url = url;
         this.user = user;
         this.password = password;
+    }
+
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(password.getBytes());
+
+            StringBuilder hexHash = new StringBuilder();
+            for (byte b : hashBytes) {
+                hexHash.append(String.format("%02x", b));
+            }
+
+            return hexHash.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -40,6 +65,39 @@ public class UserDbRepository implements Repository<UUID ,User> {
             throw new RuntimeException(e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        List<User> listaUseri = new ArrayList<>();
+        try(Connection connection = DriverManager.getConnection(url,user,password);
+            PreparedStatement pagePreparedStatement  = connection.prepareStatement("SELECT * FROM Users " + "LIMIT ? OFFSET ?");
+            PreparedStatement countPreparedStatement = connection.prepareStatement("SELECT COUNT(*) AS count FROM Users");
+        ){
+            pagePreparedStatement.setInt(1, pageable.getPageSize());
+            pagePreparedStatement.setInt(2, pageable.getPageSize() * pageable.getPageNumber());
+            try(ResultSet pageResultSet = pagePreparedStatement.executeQuery();
+                ResultSet countResultSet = countPreparedStatement.executeQuery();) {
+                while (pageResultSet.next()) {
+                    UUID id = (UUID) pageResultSet.getObject("UUID");
+                    String FirstName = pageResultSet.getString("FirstName");
+                    String LastName = pageResultSet.getString("LastName");
+                    String email = pageResultSet.getString("email");
+                    String passwordUser = pageResultSet.getString("password");
+                    User u1 = new User(id, FirstName, LastName, email, passwordUser);
+                    listaUseri.add(u1);
+                }
+                int totalCount = 0;
+                if (countResultSet.next()) {
+                    totalCount = countResultSet.getInt("count");
+                }
+
+                return new Page<>(listaUseri, totalCount);
+            }
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -73,7 +131,7 @@ public class UserDbRepository implements Repository<UUID ,User> {
             statement.setString(2,entity.getFirstName());
             statement.setString(3,entity.getLastName());
             statement.setString(4,entity.getEmail());
-            statement.setString(5,entity.getPassword());
+            statement.setString(5,hashPassword(entity.getPassword()));
 
 
             //statement.setInt(3,entity.getYear());

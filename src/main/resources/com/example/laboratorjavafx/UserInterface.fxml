@@ -38,8 +38,14 @@
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                          <children>
-                            <ListView fx:id="userList" layoutX="14.0" layoutY="20.0" prefHeight="332.0" prefWidth="255.0" />
+                            <ListView fx:id="userList" layoutX="14.0" layoutY="20.0" prefHeight="333.0" prefWidth="255.0" />
                             <Button layoutX="300.0" layoutY="20.0" mnemonicParsing="false" onAction="#sendRequest" prefHeight="33.0" prefWidth="275.0" text="Trimite cerere" />
+                        <TextField fx:id="emailField" layoutX="302.0" layoutY="289.0" prefHeight="25.0" prefWidth="275.0" promptText="Email" />
+                        <TextField fx:id="lastNameField" layoutX="302.0" layoutY="249.0" prefHeight="25.0" prefWidth="125" promptText="Nume" />
+                        <TextField fx:id="firstNameField" layoutX="450.0" layoutY="249.0" prefHeight="25.0" prefWidth="125" promptText="Prenume" />
+                        <TextField fx:id="passwordField" layoutX="302.0" layoutY="327.0" prefHeight="25.0" prefWidth="275.0" promptText="Parola" />
+                        <Button layoutX="300.0" layoutY="194.0" mnemonicParsing="false" onAction="#addUser" prefHeight="33.0" prefWidth="275.0" text="Adauga user" />
+                        <Button layoutX="300.0" layoutY="143.0" mnemonicParsing="false" onAction="#deleteUser" prefHeight="33.0" prefWidth="275.0" text="Sterge user" />
                          </children></AnchorPane>
                 </content>
             </Tab>
@@ -57,7 +63,7 @@
                 <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="349.0" prefWidth="600.0">
                         <children>
-                            <TableView fx:id="usersTable" layoutX="14.0" layoutY="14.0" prefHeight="345.0" prefWidth="201.0" style="-fx-background-color: #ffffff; -fx-border-color: #ccc;">
+                            <TableView fx:id="usersTable" layoutX="14.0" layoutY="14.0" prefHeight="249.0" prefWidth="201.0" style="-fx-background-color: #ffffff; -fx-border-color: #ccc;">
                                 <columns>
                                     <TableColumn fx:id="emailColumn" prefWidth="250" text="Email" />
                                 </columns>
@@ -65,14 +71,26 @@
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                            </columnResizePolicy>
                             </TableView>
-                            <TextField fx:id="getMesajField" layoutX="263.0" layoutY="96.0" prefHeight="108.0" prefWidth="275.0" />
-                            <Button fx:id="btnAdMesaj" layoutX="263.0" layoutY="224.0" mnemonicParsing="false" onAction="#adaugaMesaj" prefHeight="33.0" prefWidth="275.0" text="Trimite mesaj" />
-                            <Text layoutX="265.0" layoutY="82.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Scrie mesaj:" wrappingWidth="96.5">
-                                <font>
-                                    <Font name="System Italic" size="16.0" />
-                                </font>
-                            </Text>
-                            <Button fx:id="btnafisareConversatii" layoutX="263.0" layoutY="276.0" mnemonicParsing="false" onAction="#afisareConversatii" prefHeight="33.0" prefWidth="275.0" text="Afisare conversatie" />
+                            <TextField fx:id="getMesajField" layoutX="226.0" layoutY="328.0" prefHeight="31.0" prefWidth="361.0" promptText="Scrie mesaj" />
+                            <Button fx:id="btnAdMesaj" layoutX="361.0" layoutY="278.0" mnemonicParsing="false" onAction="#adaugaMesaj" prefHeight="33.0" prefWidth="95.0" text="Trimite" />
+                            <Button fx:id="btnafisareConversatii" layoutX="226.0" layoutY="278.0" mnemonicParsing="false" onAction="#afisareConversatii" prefHeight="33.0" prefWidth="122.0" text="Afisare conversatie" />
+                            <TableView fx:id="conversatii" layoutX="226.0" layoutY="14.0" prefHeight="249.0" prefWidth="364.0">
+                                <columns>
+                                    <TableColumn fx:id="numeColumn" prefWidth="97.0" text="Nume" />
+                                    <TableColumn fx:id="mesajColumn" prefWidth="158.0" text="Mesaj" />
+                                    <TableColumn fx:id="dataColumn" prefWidth="108.0" text="Data" />
+                                </columns>
+                            </TableView>
+                            <Button fx:id="btnReply" layoutX="468.0" layoutY="278.0" mnemonicParsing="false" onAction="#replyMesaj" prefHeight="33.0" prefWidth="122.0" text="Reply" />
+                            <Button fx:id="previousButton" layoutX="14.0" layoutY="329.0" mnemonicParsing="false" onAction="#onPrevious" prefHeight="30.0" prefWidth="95.0" text="Previous page" />
+                            <Button fx:id="nextButton" layoutX="120.0" layoutY="329.0" mnemonicParsing="false" onAction="#onNext" prefHeight="30.0" prefWidth="95.0" text="Next Page" />
+                        <Button layoutX="146.0" layoutY="280.0" mnemonicParsing="false" onAction="#decreasePageSize" prefHeight="30.0" prefWidth="30" text="-" />
+                        <Button layoutX="185.0" layoutY="280.0" mnemonicParsing="false" onAction="#increasePageSize" prefHeight="30.0" prefWidth="30" text="+" />
+                        <Text layoutX="14.0" layoutY="291.0" strokeType="OUTSIDE" strokeWidth="0.0" text="NUMAR ELEMENTE:" wrappingWidth="65.171875" />
+                            <Text fx:id="pageSizeText" layoutX="99.0" layoutY="302.0" strokeType="OUTSIDE" strokeWidth="0.0" text="5" wrappingWidth="27.171875">
+                           <font>
+                              <Font size="20.0" />
+                           </font></Text>
                         </children></AnchorPane>
                 </content>
             </Tab>

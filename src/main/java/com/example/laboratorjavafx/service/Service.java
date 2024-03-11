@@ -1,5 +1,8 @@
 package com.example.laboratorjavafx.service;
 
+import com.example.laboratorjavafx.Paging.Page;
+import com.example.laboratorjavafx.Paging.Pageable;
+import com.example.laboratorjavafx.Paging.PagingRepository;
 import com.example.laboratorjavafx.domain.Entity;
 import com.example.laboratorjavafx.domain.FriendRequest;
 import com.example.laboratorjavafx.domain.FriendShip;
@@ -18,7 +21,7 @@ import static com.example.laboratorjavafx.domain.FriendshipStatus.*;
 
 public class Service implements ServiceInterface<UUID> {
 
-    private final Repository userRepo;
+    private final PagingRepository<UUID, User> userRepo;
     private final Validator userValidator;
     private final Repository friendshipRepo;
     private final Repository friendRequestRepo;
@@ -33,7 +36,7 @@ public class Service implements ServiceInterface<UUID> {
      * @param friendRequestRepo
      * @param friendshipValidator - the validator for the friendships
      */
-    public Service(Repository userRepo, Validator userValidator, Repository friendshipRepo, Repository friendRequestRepo, Validator friendshipValidator) {
+    public Service(PagingRepository<UUID, User> userRepo, Validator userValidator, Repository friendshipRepo, Repository friendRequestRepo, Validator friendshipValidator) {
         this.userRepo = userRepo;
         this.userValidator = userValidator;
         this.friendshipRepo = friendshipRepo;
@@ -41,7 +44,7 @@ public class Service implements ServiceInterface<UUID> {
         this.friendshipValidator = friendshipValidator;
     }
 
-    public Service(Repository userRepo, Validator userValidator, Repository friendshipRepo, Validator friendshipValidator) {
+    public Service(PagingRepository<UUID, User> userRepo, Validator userValidator, Repository friendshipRepo, Validator friendshipValidator) {
         this.userRepo = userRepo;
         this.userValidator = userValidator;
         this.friendshipRepo = friendshipRepo;
@@ -76,7 +79,7 @@ public class Service implements ServiceInterface<UUID> {
 
         try {
             this.userValidator.validate(user);
-            Optional<Entity<UUID>> u = userRepo.save(user);
+            Optional<User> u = userRepo.save(user);
             if (u.isPresent()) {
                 throw new IllegalArgumentException("A user with this ID already exists!");
             }
@@ -116,8 +119,11 @@ public class Service implements ServiceInterface<UUID> {
         // Șterge prieteniile utilizatorului
         deleteFriendshipsForUser(user);
 
+        // Șterge cererile de prietenie ale utilizatorului
+        deleteFriendRequestsForUser(user);
+
         // Șterge utilizatorul și returnează entitatea ștearsă, folosind get() pentru a obține valoarea din Optional
-        Optional<Entity<UUID>> deletedUserOptional = userRepo.delete(user.getId());
+        Optional<User> deletedUserOptional = userRepo.delete(user.getId());
 
         if (deletedUserOptional.isPresent()) {
             return deletedUserOptional.get();
@@ -145,6 +151,27 @@ public class Service implements ServiceInterface<UUID> {
         // Șterge toate prieteniile din lista
         for (FriendShip friendship : friendshipsToRemove) {
             friendshipRepo.delete(friendship.getId());
+        }
+    }
+
+    /**
+     * Deletes friend requests for a user
+     * @param user - the user for which to delete friend requests
+     */
+    private void deleteFriendRequestsForUser(User user) {
+        List<FriendRequest> friendRequestsToRemove = new ArrayList<>();
+        Iterable<FriendRequest> friendRequests = friendRequestRepo.findAll();
+
+        for (FriendRequest friendRequest : friendRequests) {
+            if (friendRequest.getFromUser().equals(user) || friendRequest.getToUser().equals(user)) {
+                // Adaugă prietenia la lista de prietenii de șters
+                friendRequestsToRemove.add(friendRequest);
+            }
+        }
+
+        // Șterge toate prieteniile din lista
+        for (FriendRequest friendRequest : friendRequestsToRemove) {
+            friendRequestRepo.delete(friendRequest.getId());
         }
     }
 
@@ -655,5 +682,9 @@ public class Service implements ServiceInterface<UUID> {
         }
 
         return Color.WHITE;
+    }
+
+    public  Page<User>  findAll(Pageable pageable) {
+        return userRepo.findAll(pageable);
     }
 }

@@ -11,7 +11,7 @@ public class Message extends Entity<UUID> {
     private String message;
     private LocalDateTime data;
     private Message reply;
-
+    private String nume;
     public Message(User from, List<User> to, String message, LocalDateTime data) {
         this.setId(UUID.randomUUID());
         this.from = from;
@@ -19,6 +19,7 @@ public class Message extends Entity<UUID> {
         this.message = message;
         this.data = data;
         this.reply = null;
+        this.nume = from.getFirstName() + " " + from.getLastName() + ":";
     }
 
     public Message(UUID id, User from, List<User> to, String message, LocalDateTime data) {
@@ -28,6 +29,7 @@ public class Message extends Entity<UUID> {
         this.message = message;
         this.data = data;
         this.reply = null;
+        this.nume = from.getFirstName() + " " + from.getLastName() + ":";
     }
 
 
@@ -70,6 +72,10 @@ public class Message extends Entity<UUID> {
 
     public void setReply(Message reply) {
         this.reply = reply;
+    }
+
+    public String getNume() {
+        return nume;
     }
 
     public boolean isReceivedFrom(User user) {

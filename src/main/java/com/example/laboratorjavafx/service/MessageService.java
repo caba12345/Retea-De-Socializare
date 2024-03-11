@@ -58,7 +58,7 @@ public class MessageService {
         messageRepo.save(newMessage);
 
         // Set reply for specific conditions
-        for (Message existingMessage : messageRepo.findAll()) {
+        /*for (Message existingMessage : messageRepo.findAll()) {
             if (to.contains(existingMessage.getFrom()) &&
                     existingMessage.getTo().contains(from) &&
                     existingMessage.getReply() == null) {
@@ -67,6 +67,30 @@ public class MessageService {
                 messageRepo.update(existingMessage);
             }
         }
+         */
+
+        System.out.println(newMessage);
+    }
+
+    public void addMessageReply(User from, List<User> to, String reply, Message selectedMessage) {
+        // Create a new message
+        Message newMessage = new Message(from, to, reply, LocalDateTime.now());
+
+        // Save the new message
+        newMessage.setReply(selectedMessage);
+        messageRepo.save(newMessage);
+
+        // Set reply for specific conditions
+        /*for (Message existingMessage : messageRepo.findAll()) {
+            if (to.contains(existingMessage.getFrom()) &&
+                    existingMessage.getTo().contains(from) &&
+                    existingMessage.getReply() == null) {
+
+                existingMessage.setReply(newMessage);
+                messageRepo.update(existingMessage);
+            }
+        }
+         */
 
         System.out.println(newMessage);
     }

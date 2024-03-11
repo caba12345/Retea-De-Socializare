@@ -28,6 +28,8 @@ import com.example.laboratorjavafx.HelloApplication;
 
 import java.io.IOException;
 
+import static com.example.laboratorjavafx.repository.database.UserDbRepository.hashPassword;
+
 public class LogIn {
     @FXML
     private TextField email;
@@ -69,7 +71,7 @@ public class LogIn {
             emailErrorText.setVisible(true);
             passwordErrorText.setVisible(false);
         }
-        else if(!password.getText().equals(user.getPassword())) { // show a message
+        else if(!password.getText().equals(user.getPassword()) && !hashPassword(password.getText()).equals(user.getPassword())) { // show a message
             passwordErrorText.setVisible(true);
             emailErrorText.setVisible(false);
         }
@@ -93,6 +95,20 @@ public class LogIn {
             controller.initApp(user);
             stage.show();
         }
+    }
+
+
+    @FXML
+    public void onSignInClick(ActionEvent event) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("SignIn.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
+
+        SignUp signUpController = fxmlLoader.getController();
+        signUpController.setService(this.service);
+        signUpController.setMessageService(messageService);
+        stage.show();
     }
 
     public void onTextChanged(KeyEvent evt) {

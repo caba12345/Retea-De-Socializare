@@ -1,7 +1,10 @@
 package com.example.laboratorjavafx.controllers;
 
+import com.example.laboratorjavafx.Paging.Page;
+import com.example.laboratorjavafx.Paging.Pageable;
 import com.example.laboratorjavafx.domain.FriendRequest;
 import com.example.laboratorjavafx.domain.FriendShip;
+import com.example.laboratorjavafx.domain.Message;
 import com.example.laboratorjavafx.domain.User;
 import com.example.laboratorjavafx.service.Service;
 import javafx.collections.FXCollections;
@@ -18,35 +21,33 @@ import javafx.scene.text.Text;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 
 public class UserController implements Initializable {
     @FXML
-    private Text username;
+    private Text username, pageSizeText;
     @FXML
     private TableView<User> usersTable;
     @FXML
-    private TableColumn<User, String> emailColumn;
+    private TableColumn<User, String> emailColumn, mesajColumn, numeColumn, dataColumn;
     @FXML
     private TextField firstNameField, lastNameField, emailField, passwordField, getMesajField;
     @FXML
-    private ListView<String> friendRequestsSent;
+    private ListView<String> friendRequestsSent, friendsList, friendsRequestList, userList;
     @FXML
-    private ListView<String> friendsList;
+    private TableView<Message> conversatii;
+
     @FXML
-    private ListView<String> friendsRequestList;
-    @FXML
-    private ListView<String> userList;
-    @FXML
-    private Button addButton, updateButton, deleteButton, btnAdMesaj;
+    private Button addButton, updateButton, deleteButton, btnAdMesaj, previousButton, nextButton;
 
     private final ObservableList<String> friendsObs = FXCollections.observableArrayList();
 
@@ -57,8 +58,12 @@ public class UserController implements Initializable {
     private final ObservableList<String> userObs = FXCollections.observableArrayList();
     private MessageService messageService;
     private Service service;
+    private int currentPage = 0;
+    private int pageSize = 5;
+    private int totalNumberOfElements = 0;
     private User user;
     private ObservableList<User> users = FXCollections.observableArrayList();
+
 
     public MessageService getMessageService() {
         return messageService;
@@ -72,8 +77,32 @@ public class UserController implements Initializable {
         this.service = service;
         initializeTable();
         loadUsers();
+        initModel();
     }
 
+    private void initModel()
+    {
+
+        Page<User> page = service.findAll(new Pageable(currentPage, pageSize));
+
+        int maxPage = (int) Math.ceil((double) page.getTotalElementCount() / pageSize)-1;
+        if(maxPage == -1)
+        {
+            maxPage = 0;
+        }
+        if(currentPage > maxPage){
+            currentPage = maxPage;
+            page = service.findAll(new Pageable(currentPage, pageSize));
+        }
+
+        users.setAll(StreamSupport.stream(page.getElementsOnPage().spliterator(),
+                false).collect(Collectors.toList()));
+        totalNumberOfElements=page.getTotalElementCount();
+
+        previousButton.setDisable(currentPage == 0);
+        nextButton.setDisable((currentPage+1)*pageSize >+ totalNumberOfElements);
+        usersTable.refresh();
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         usersTable.setItems(users);
@@ -92,6 +121,7 @@ public class UserController implements Initializable {
     public void initApp(User user) {
         this.user = user;
         username.setText(user.getFirstName() + " " + user.getLastName());
+        pageSizeText.setText(String.valueOf(pageSize));
 
         //user.getFriends().forEach(u -> friendsObs.add(u.getFirstName() + " " + u.getLastName() + " " + u.getEmail())); nush dc nu merge
 
@@ -177,6 +207,9 @@ public class UserController implements Initializable {
             service.addUser(user);
             loadUsers();
             clearForm();
+            userObs.add(user.getFirstName() + " " + user.getLastName() + " " + user.getEmail());
+            userList.refresh();
+            initModel();
             showConfirmation("User Added", "User successfully added.");
         } catch (Exception e) {
             showAlert("Error", "An error occurred: " + e.getMessage());
@@ -202,6 +235,8 @@ public class UserController implements Initializable {
     private void clearForm() {
         firstNameField.clear();
         lastNameField.clear();
+        emailField.clear();
+        passwordField.clear();
     }
 
     @FXML
@@ -223,13 +258,25 @@ public class UserController implements Initializable {
     @FXML
     private void deleteUser() {
         try {
-            User selectedUser = usersTable.getSelectionModel().getSelectedItem();
+            String selectedUser = userList.getSelectionModel().getSelectedItem();
             if (selectedUser != null) {
-                service.deleteUser(selectedUser.getEmail());
-                loadUsers();
+                String[] parts = selectedUser.split(" ");
+                service.deleteUser(parts[2]);
+
+                // Identifică utilizatorul în userObs și elimină-l
+                Iterator<String> iterator = userObs.iterator();
+                while (iterator.hasNext()) {
+                    String user = iterator.next();
+                    if (user.contains(parts[2])) {
+                        iterator.remove();
+                        break; // După ce am găsit și eliminat utilizatorul, ieșim din buclă
+                    }
+                }
+
+                userList.refresh(); // Reîmprospătare ListView
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Replace with proper error handling
+            e.printStackTrace(); // Înlocuiește cu gestionarea adecvată a erorilor
         }
     }
 
@@ -248,6 +295,7 @@ public class UserController implements Initializable {
 
         friendsObs.removeAll(friendsObs.stream().toList());
         friendsReqObs.removeAll(friendsReqObs.stream().toList());
+        userObs.removeAll(userObs.stream().toList());
         initApp(this.user);
     }
 
@@ -266,6 +314,7 @@ public class UserController implements Initializable {
 
         friendsObs.removeAll(friendsObs.stream().toList());
         friendsReqObs.removeAll(friendsReqObs.stream().toList());
+        userObs.removeAll(userObs.stream().toList());
         initApp(this.user);
     }
 
@@ -326,6 +375,32 @@ public class UserController implements Initializable {
     }
 
     @FXML
+    private void replyMesaj(ActionEvent actionEvent){
+        try {
+            // Get the selected users from the table
+            Message selectedMessage = conversatii.getSelectionModel().getSelectedItem();
+
+            // Check if users are selected
+            if (selectedMessage==null) {
+                throw new Exception("No message selected!");
+            }
+
+            List<User> id_toList = Collections.singletonList(selectedMessage.getFrom());
+
+            String reply = this.getMesajField.getText();
+            if (reply.isEmpty()) throw new Exception("Mesaj null!");
+
+            // Assuming MessageService.addMessage expects a List<UUID> for recipients
+            messageService.addMessageReply(user, id_toList, reply, selectedMessage);
+
+            getMesajField.clear();
+            initApp(this.user);
+        } catch (Exception e) {
+            e.printStackTrace(); // Replace with proper error handling
+        }
+    }
+
+    @FXML
     private void afisareConversatii(ActionEvent actionEvent) {
         UUID from = user.getId();
         try {
@@ -341,32 +416,71 @@ public class UserController implements Initializable {
                             tup.getData().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + '\n')
                     .collect(Collectors.joining("\n"));
 
-            openSecondaryWindow(str);
+            List<Message> conversatie = messageService.conversation(from, id_to);
+            numeColumn.setCellValueFactory(new PropertyValueFactory<>("nume"));
+            mesajColumn.setCellValueFactory(new PropertyValueFactory<>("message"));
+            dataColumn.setCellValueFactory(new PropertyValueFactory<>("data"));
+
+            conversatii.setRowFactory(new Callback<TableView<Message>, TableRow<Message>>() {
+
+                public TableRow<Message> call(TableView<Message> tableView) {
+                    return new TableRow<Message>() {
+                        @Override
+                        protected void updateItem(Message item, boolean empty) {
+                            super.updateItem(item, empty);
+
+                            // Verificați dacă este un rând valid și conține un mesaj
+                            if (!empty && item != null) {
+                                // Verificați dacă acest mesaj este un reply
+                                if (item.getReply() != null) {
+                                    // Setați un stil pentru rândurile care sunt reply-uri
+                                    setStyle("-fx-background-color: lightyellow;");
+                                } else {
+                                    // Setați un alt stil pentru rândurile care nu sunt reply-uri
+                                    setStyle("");
+                                }
+                            } else {
+                                // Dacă rândul este gol, asigurați-vă că stilurile sunt șterse
+                                setStyle("");
+                            }
+                        }
+                    };
+                }
+            });
+
+            TableColumn<Message, Long> idCol = new TableColumn<>("ID Mesaj");
+            idCol.setCellValueFactory(new PropertyValueFactory<>("idMesaj"));
+
+            conversatii.getItems().setAll(conversatie);
+            //openSecondaryWindow(str);
 
         } catch (Exception e) {
             e.printStackTrace(); // Replace with proper error handling
         }
     }
 
-    private void openSecondaryWindow(String deAfisat) {
-        // Creează o nouă fereastră (Stage)
-        Stage secondaryStage = new Stage();
-        secondaryStage.setTitle("Fereastra Secundară");
 
-        // Creează un obiect Label cu șirul
-        javafx.scene.control.Label label = new javafx.scene.control.Label(deAfisat + "\n\n\n");
-
-        // Layout pentru fereastra secundară
-        StackPane secondaryLayout = new StackPane();
-        secondaryLayout.getChildren().add(label);
-
-        // Setează scena pentru fereastra secundară
-        Scene secondaryScene = new Scene(secondaryLayout);
-        secondaryStage.setScene(secondaryScene);
-        secondaryStage.setWidth(300);
-
-        // Arată fereastra secundară
-        secondaryStage.show();
+    public void onPrevious(ActionEvent actionEvent){
+        currentPage--;
+        initModel();
     }
 
+    public void onNext(ActionEvent actionEvent){
+        currentPage++;
+        initModel();
+    }
+
+    public void increasePageSize(ActionEvent actionEvent){
+        pageSize++;
+        pageSizeText.setText(String.valueOf(pageSize));
+        initModel();
+    }
+
+    public void decreasePageSize(ActionEvent actionEvent){
+        if(pageSize > 1) {
+            pageSize--;
+            pageSizeText.setText(String.valueOf(pageSize));
+            initModel();
+        }
+    }
 }

@@ -24,7 +24,7 @@ public class FriendRequestDbRepository implements Repository<UUID, FriendRequest
         try (Connection connection = DriverManager.getConnection(url, user, password);
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM Friendrequests WHERE id = ?");
         ) {
-            statement.setString(1, id.toString());
+            statement.setObject(1, id);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {

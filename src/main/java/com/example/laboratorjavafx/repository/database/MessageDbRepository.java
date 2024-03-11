@@ -122,7 +122,10 @@ public class MessageDbRepository implements Repository<UUID, Message> {
             statement.setTimestamp(5, Timestamp.valueOf(dt));
 
             // Assuming id_reply is set to null for new messages
-            statement.setObject(6, null);
+            if (entity.getReply() == null) {
+                statement.setNull(6, Types.OTHER);
+            } else
+            statement.setObject(6, entity.getReply().getId());
 
             statement.executeUpdate();
 
